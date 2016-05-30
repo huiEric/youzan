@@ -4,6 +4,8 @@ import requests, json
 import hashlib 
 import time
 import datetime
+import smtplib  
+from email.mime.text import MIMEText
 tid=[]
 tid2=[]
 num=0
@@ -20,8 +22,6 @@ def change_to_one(app_id,app_secret):
     r = requests.post(url)
     r.encoding='utf-8'
     #print r.json()
-    #for x in r.json()['response']['trades']:
-    #    print x['orders']
     for trade in r.json()['response']['trades']:
         if trade['tid'] in tid:
             break
@@ -80,12 +80,29 @@ def check(app_id,app_secret):
                 s+=u'\t买家刚签收,还没来得及更新库存哦~\n'
             else:
                 s+=u'\t更新库存结果:失败!\n'
+                send_mail(s)
         s+='\n\n\n'
     #print s
     try:
         diary.write(s.encode('utf-8'))
     finally:
         diary.close()
+def send_mail(s):
+    host = 'smtp.163.com'  
+    port = 25  
+    sender = 'a1836810995@163.com'
+    pwd = 'a1836810995'  
+    receiver = '2655711088@qq.com' 
+    body = '<h1>Hi</h1><p>'+s+'</p>' 
+
+    msg = MIMEText(body, 'html') 
+    msg['subject'] = 'Error message' 
+    msg['from'] = sender  
+    msg['to'] = receiver  
+
+    s = smtplib.SMTP(host, port)  
+    s.login(sender, pwd)  
+    s.sendmail(sender, receiver, msg.as_string())
 
 
 
